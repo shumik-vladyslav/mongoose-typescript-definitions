@@ -1,0 +1,2 @@
+mongoose-typescript-defenitions
+===============================
