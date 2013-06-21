@@ -1,8 +1,6 @@
 ///<reference path='node.d.ts' />
-///<reference path='mongodb.d.ts' />
 
-module "mongoose" {
-    import Mongo = module("mongodb")
+declare module "mongoose" {
 
     export interface Mongoose {
         constructor();
@@ -16,7 +14,7 @@ module "mongoose" {
         model(name: string, schema?: Schema, collection?: string, skipInit?: bool): Model;
         modelNames(): string[];
         plugin(fn: (any) => any, opts?: any): Mongoose;
-        mongo: Mongo;
+        mongo: any;
         version: string;
         connection: Connection;
     }
@@ -31,7 +29,7 @@ module "mongoose" {
     export function model(name: string, schema?: Schema, collection?: string, skipInit?: bool): Model;
     export function modelNames(): string[];
     export function plugin(fn: (any) => any, opts?: any): Mongoose;
-    export var mongo: Mongo;
+    export var mongo: any;
     export var version: string;
     export var connection: Connection;
     
@@ -67,7 +65,7 @@ module "mongoose" {
         model(name: string, schema?: Schema, collection?: string): Model;
         modelNames(): string[];
         setProfiling(level: number, ms: number, callback: (any) => any): any;
-        db: Mongo.Db;
+        db: any;
         collections: any;
         readyState: number;
     }
@@ -76,22 +74,28 @@ module "mongoose" {
         constructor(definition: any, options?: any);
         static Types: {
             ObjectId: any;
+            Mixed: any;
         };
 
         methods: any;
         statics: any;
         path(path: string): any;
+        virtual(path: string): any;
+        pre(method: string, callback: (next: (any?) => any) => any): void;
     }
 
     export class SchemaType { }
 
     export class VirtualType { }
 
-    export class Query {
+    /**
+     * Type param T should be descendant of Document
+     */
+    export class Query<T> {
         exec(): Promise;
         exec(operation: string): Promise;
-        exec(callback: (err: any, res: any) => any): Promise;
-        exec(operation: string, callback: (err: any, res: any) => void ): Promise;
+        exec(callback: (err: any, res: T[]) => any): Promise;
+        exec(operation: string, callback: (err: any, res: T[]) => void ): Promise;
 
         skip(x: number): Query;
         limit(x: number): Query;
@@ -99,52 +103,55 @@ module "mongoose" {
 
     export class Promise { }
 
-    export interface Model {
+    /**
+     * Type param T should be descendant of Document
+     */
+    export interface Model<T> {
         new (any): Document;
 
-        find(conditions: any): Query;
-        find(conditions: any, fields: any): Query;
-        find(conditions: any, fields: any, options: any): Query;
-        find(conditions: any, fields: any, options: any, callback: (err: any, res: any) => void ): Query;
-        find(conditions: any, callback: (err: any, res: any) => void ): Query;
-        find(conditions: any, fields: any, callback: (err: any, res: any) => void ): Query;
+        find(conditions: any): Query<T>;
+        find(conditions: any, fields: any): Query<T>;
+        find(conditions: any, fields: any, options: any): Query<T>;
+        find(conditions: any, fields: any, options: any, callback: (err: any, res: any) => void ): Query<T>;
+        find(conditions: any, callback: (err: any, res: T[]) => void ): Query<T>;
+        find(conditions: any, fields: any, callback: (err: any, res: T[]) => void ): Query<T>;
 
-        findOne(conditions: any): Query;
-        findOne(conditions: any, fields: any): Query;
-        findOne(conditions: any, fields: any, options: any): Query;
-        findOne(conditions: any, fields: any, options: any, callback: (err: any, res: any) => void ): Query;
-        findOne(conditions: any, callback: (err: any, res: any) => void ): Query;
-        findOne(conditions: any, fields: any, callback: (err: any, res: any) => void ): Query;
+        findOne(conditions: any): Query<T>;
+        findOne(conditions: any, fields: any): Query<T>;
+        findOne(conditions: any, fields: any, options: any): Query<T>;
+        findOne(conditions: any, fields: any, options: any, callback: (err: any, res: T) => void ): Query<T>;
+        findOne(conditions: any, callback: (err: any, res: T) => void ): Query<T>;
+        findOne(conditions: any, fields: any, callback: (err: any, res: T) => void ): Query<T>;
 
-        findById(id: string): Query;
-        findById(id: string, fields: any): Query;
-        findById(id: string, fields: any, options: any): Query;
-        findById(id: string, fields: any, options: any, callback: (err: any, res: any) => void ): Query;
-        findById(id: string, callback: (err: any, res: any) => void ): Query;
-        findById(id: string, fields: any, callback: (err: any, res: any) => void ): Query;
+        findById(id: string): Query<T>;
+        findById(id: string, fields: any): Query<T>;
+        findById(id: string, fields: any, options: any): Query<T>;
+        findById(id: string, fields: any, options: any, callback: (err: any, res: T) => void ): Query<T>;
+        findById(id: string, callback: (err: any, res: T) => void ): Query<T>;
+        findById(id: string, fields: any, callback: (err: any, res: T) => void ): Query<T>;
 
-        findByIdAndUpdate(id: string): Query;
-        findByIdAndUpdate(id: string, update: any): Query;
-        findByIdAndUpdate(id: string, update: any, options: any): Query;
-        findByIdAndUpdate(id: string, update: any, options: any, callback: (err: any, res: any) => void ): Query;
-        findByIdAndUpdate(id: string, callback: (err: any, res: any) => void ): Query;
-        findByIdAndUpdate(id: string, update: any, callback: (err: any, res: any) => void ): Query;
+        findByIdAndUpdate(id: string): Query<T>;
+        findByIdAndUpdate(id: string, update: any): Query<T>;
+        findByIdAndUpdate(id: string, update: any, options: any): Query<T>;
+        findByIdAndUpdate(id: string, update: any, options: any, callback: (err: any, res: T[]) => void ): Query<T>;
+        findByIdAndUpdate(id: string, callback: (err: any, res: T[]) => void ): Query<T>;
+        findByIdAndUpdate(id: string, update: any, callback: (err: any, res: T[]) => void ): Query<T>;
 
         update(conditions: any,
                update: any,
                options?: any,
-               callback?: (err: any, affectedRows: number, raw: any) => void ): Query;
+               callback?: (err: any, affectedRows: number, raw: any) => void ): Query<T>;
         update(conditions: any,
                update: any,
-               callback?: (err: any, affectedRows: number, raw: any) => void ): Query;
+               callback?: (err: any, affectedRows: number, raw: any) => void ): Query<T>;
 
-        create(doc: any, fn: (err, res) => void ): void;
+        create(doc: any, fn: (err: any, res: T) => void ): void;
 
         collection: Collection;
 
-        remove(conditions: any, callback?: (err) => void): Query;
+        remove(conditions: any, callback?: (err) => void): Query<T>;
     }
-
+    /*
     export var Model: {
         (any);
         constructor(doc?: any);
@@ -165,13 +172,13 @@ module "mongoose" {
         findById(id: string, fields: any, callback: (err: any, res: any) => void ): Query;
 
         collection: Collection;
-    }
+    }*/
 
     export interface Document {
         _id: string;
-        update(doc: any, options: any, callback: (any) => any): Query;
-        save(fn?: (err: any, res: any) => void ): void;
-        remove(callback?: (err) => void ): Query;
+        update<T>(doc: any, options: any, callback: (err: any, affectedRows: number, raw: any) => void ): Query<T>;
+        save<T>(fn?: (err: any, res: T) => void ): void;
+        remove<T>(callback?: (err) => void ): Query<T>;
     }
 
     export class MongooseError { }
