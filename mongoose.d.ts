@@ -1,6 +1,8 @@
 ///<reference path='node.d.ts' />
 
-declare module "mongoose" {
+export = M;
+
+declare module M {
 
     export interface Mongoose {
         constructor();
@@ -11,7 +13,7 @@ declare module "mongoose" {
         connect(any): Mongoose;
 
         disconnect(fn: (err?: any) => void ): Mongoose;
-        model(name: string, schema?: Schema, collection?: string, skipInit?: bool): Model;
+        model(name: string, schema?: Schema, collection?: string, skipInit?: boolean): Model;
         modelNames(): string[];
         plugin(fn: (any) => any, opts?: any): Mongoose;
         mongo: any;
@@ -26,7 +28,7 @@ declare module "mongoose" {
     export function connect(any): Mongoose;
 
     export function disconnect(fn: (err?: any) => void ): Mongoose;
-    export function model(name: string, schema?: Schema, collection?: string, skipInit?: bool): Model;
+    export function model(name: string, schema?: Schema, collection?: string, skipInit?: boolean): Model;
     export function modelNames(): string[];
     export function plugin(fn: (any) => any, opts?: any): Mongoose;
     export var mongo: any;
@@ -88,10 +90,7 @@ declare module "mongoose" {
 
     export class VirtualType { }
 
-    /**
-     * Type param T should be descendant of Document
-     */
-    export class Query<T> {
+    export class Query<T extends Document> {
         exec(): Promise;
         exec(operation: string): Promise;
         exec(callback: (err: any, res: T[]) => any): Promise;
@@ -103,10 +102,7 @@ declare module "mongoose" {
 
     export class Promise { }
 
-    /**
-     * Type param T should be descendant of Document
-     */
-    export interface Model<T> {
+    export interface Model<T extends Document> {
         new (any): Document;
 
         find(conditions: any): Query<T>;
@@ -176,9 +172,9 @@ declare module "mongoose" {
 
     export interface Document {
         _id: string;
-        update<T>(doc: any, options: any, callback: (err: any, affectedRows: number, raw: any) => void ): Query<T>;
-        save<T>(fn?: (err: any, res: T) => void ): void;
-        remove<T>(callback?: (err) => void ): Query<T>;
+        update<T extends Document>(doc: any, options: any, callback: (err: any, affectedRows: number, raw: any) => void ): Query<T>;
+        save<T extends Document>(fn?: (err: any, res: T) => void ): void;
+        remove<T extends Document>(callback?: (err) => void ): Query<T>;
     }
 
     export class MongooseError { }
