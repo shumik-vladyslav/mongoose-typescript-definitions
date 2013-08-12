@@ -1,2 +1,2 @@
-mongoose-typescript-defenitions
+mongoose-typescript-definitions
 ===============================
